@@ -34,6 +34,7 @@ const processFile = (originalfile, setRadius, message) => {
         urlPoints: '',
         urlCsv: '',
         radius: setRadius,
+        isRadiusDefault: setRadius ? false : true,
         dist1: '',
         dist2: '',
         countPoints: '',
@@ -76,6 +77,7 @@ const processFile = (originalfile, setRadius, message) => {
     let dist2 = GeoHelper.calculateTheDistance(sides.side2.A[1], sides.side2.A[0], sides.side2.C[1], sides.side2.C[0]);
     if (dist1 < response.radius || dist2 < response.radius) {
         response.radius = (dist1 * 0.3) / 5;
+        response.isRadiusDefault = true;
         response.message = 'Radius more then one side of direct. Set default radius ' + response.radius;
     }
 

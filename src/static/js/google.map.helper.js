@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (data.message)
         document.getElementById("information").value = data.message;
+
     let res = await getData('/files-name');
     let files = res.files;
     let select = document.getElementById("selectFile");
@@ -66,10 +67,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     setPointsData(urlPoints);
 
 });
-
-
-// var citymap = data;
-
 
 function initMap() {
     // Create the map.
@@ -100,18 +97,16 @@ function initMap() {
         });
         cityCircle.setMap(map);
     }
-    // Construct the circle for each value in citymap.
-    // Note: We scale the area of the circle based on the population.
-
 
 }
 
 async function generatedPoints() {
     let radius = document.getElementById("radius").value;
     let select = document.getElementById("selectFile");
+    let checked = document.getElementById("isRadiusDefault").checked;
     let fileName = select.options[select.selectedIndex].text;
-    console.log({ radius: radius, fileName: fileName })
-    let data = await postData('/points', { radius: radius, fileName: fileName });
+
+    let data = await postData('/points', { radius: radius, fileName: fileName, isRadiusDefault: checked });
     if (data.error) {
         document.getElementById("information").value = data.error; return;
     }
@@ -136,6 +131,7 @@ function setPointsData(data) {
 }
 
 function setStatistic(data) {
+    document.getElementById("isRadiusDefault").checked = data.isRadiusDefault;
     document.getElementById("points").value = data.countPoints;
     document.getElementById("dist1").value = data.dist1;
     document.getElementById("dist2").value = data.dist2;
