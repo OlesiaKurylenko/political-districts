@@ -8,8 +8,8 @@ const savedFolder = './static/';
 let radius = 0.4;
 
 let fileHelper = null;
+
 const getFiles = (directory) => {
-    console.log(directory)
     if (!fileHelper) {
         fileHelper = new FileHelper();
     }

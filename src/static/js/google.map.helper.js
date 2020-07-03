@@ -2,6 +2,7 @@ let map = null;
 let bermudaTriangle = null;
 let circleCoords = null;
 let triangleCoords = [{ lng: -147.813844, lat: 64.83443999927472 }];
+let zoom = 10;
 
 const postData = async (url = '', data = {}) => {
     // Default options are marked with *
@@ -71,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 function initMap() {
     // Create the map.
     map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 10,
+        zoom: zoom,
         center: triangleCoords[0],
         mapTypeId: 'terrain'
     });
@@ -113,7 +114,7 @@ async function generatedPoints() {
     if (data.message)
         document.getElementById("information").value = data.message;
     setStatistic(data);
-
+    console.log(zoom)
     let urlPoligon = await getData(data.urlPoligon);
     let urlPoints = await getData(data.urlPoints);
 
@@ -131,10 +132,41 @@ function setPointsData(data) {
 }
 
 function setStatistic(data) {
+    setZoom(data.dist1)
     document.getElementById("isRadiusDefault").checked = data.isRadiusDefault;
     document.getElementById("points").value = data.countPoints;
     document.getElementById("dist1").value = data.dist1;
     document.getElementById("dist2").value = data.dist2;
     document.getElementById("urlToCsv").href = data.urlCsv;
     document.getElementById("radius").value = data.radius;
+}
+
+function setZoom(dist1) {
+    if (dist1 < 2) {
+        zoom = 15;
+        return;
+    }
+    if (dist1 < 10) {
+        zoom = 10;
+        return;
+    }
+    if (dist1 < 50) {
+        zoom = 9;
+        return;
+    }
+    if (dist1 < 100) {
+        zoom = 8;
+        return;
+    }
+    if (dist1 < 150) {
+        zoom = 7;
+        return;
+    }
+    if (dist1 >= 150) {
+        zoom = 6;
+
+        return;
+    }
+    zoom = 10;
+
 }
