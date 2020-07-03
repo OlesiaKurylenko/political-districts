@@ -40,10 +40,10 @@ const getData = async (url = '') => {
 document.addEventListener("DOMContentLoaded", async () => {
     let data = await getData('/init');
     if (data.error) {
-        document.getElementById("information").value = data.error; return;
+        document.getElementById("information").innerHTML = data.error; return;
     }
     if (data.message)
-        document.getElementById("information").value = data.message;
+        document.getElementById("information").innerHTML = data.message;
 
     let res = await getData('/files-name');
     let files = res.files;
@@ -106,27 +106,27 @@ async function generatedPoints() {
     let select = document.getElementById("selectFile");
     let checked = document.getElementById("isRadiusDefault").checked;
     let fileName = select.options[select.selectedIndex].text;
-
+    document.getElementById("generated").disabled = true;
     let data = await postData('/points', { radius: radius, fileName: fileName, isRadiusDefault: checked });
+    console.log(data)
     if (data.error) {
-        document.getElementById("information").value = data.error; return;
+        document.getElementById("information").innerHTML = data.error; return;
     }
     if (data.message)
-        document.getElementById("information").value = data.message;
+        document.getElementById("information").innerHTML = data.message;
     setStatistic(data);
-    console.log(zoom)
     let urlPoligon = await getData(data.urlPoligon);
     let urlPoints = await getData(data.urlPoints);
 
     setPoligonData(urlPoligon);
     setPointsData(urlPoints);
+    document.getElementById("generated").disabled = false;
 }
 function setPoligonData(data) {
     triangleCoords = data.data;
     initMap();
 }
 function setPointsData(data) {
-    console.log(data)
     circleCoords = data;
     initMap();
 }

@@ -3,10 +3,11 @@ const FileHelper = require('./file.helper');
 const GeoJsonData = require('./geo.json.data');
 const fs = require('fs');
 const path = require('path');
+const round = require('lodash.round');
+
 const testFolder = './states';
 const savedFolder = './static/';
 let radius = 0.4;
-
 let fileHelper = null;
 
 const getFiles = (directory) => {
@@ -20,6 +21,7 @@ const getFiles = (directory) => {
     return files
 }
 const processFile = (originalfile, setRadius, message) => {
+    console.log(`start processFile with param: file:${originalfile} radius: ${setRadius} message: ${message}`)
     let file = '';
     if (!fileHelper) {
         fileHelper = new FileHelper();
@@ -73,10 +75,10 @@ const processFile = (originalfile, setRadius, message) => {
     let sides = geoJsonData.getSidesRectangle();
 
     //** calculate The Distance of rectangle */
-    let dist1 = GeoHelper.calculateTheDistance(sides.side1.B[1], sides.side1.B[0], sides.side1.A[1], sides.side1.A[0]);
-    let dist2 = GeoHelper.calculateTheDistance(sides.side2.A[1], sides.side2.A[0], sides.side2.C[1], sides.side2.C[0]);
+    let dist1 = round(GeoHelper.calculateTheDistance(sides.side1.B[1], sides.side1.B[0], sides.side1.A[1], sides.side1.A[0]), 2);
+    let dist2 = round(GeoHelper.calculateTheDistance(sides.side2.A[1], sides.side2.A[0], sides.side2.C[1], sides.side2.C[0]), 2);
     if (dist1 < response.radius || dist2 < response.radius) {
-        response.radius = (dist1 * 0.3) / 5;
+        response.radius = round((dist1 * 0.3) / 5, 3);
         response.isRadiusDefault = true;
         response.message = 'Radius more then one side of direct. Set default radius ' + response.radius;
     }
@@ -86,7 +88,7 @@ const processFile = (originalfile, setRadius, message) => {
 
     //** set default radius */
     if (!setRadius)
-        response.radius = (dist1 * 0.3) / 5;
+        response.radius = round((dist1 * 0.3) / 5, 3);
 
     geoJsonData.radius = response.radius;
 
@@ -122,8 +124,9 @@ const processFile = (originalfile, setRadius, message) => {
         }, {}
         );
     response.countPoints = pointsForCsv.length;
-    if (pointsForCsv.length > 50000) {
-        processFile(originalfile, (dist1 * 0.3) / 5, 'To many records, more then 50 000')
+    if (response.countPoints > 50000) {
+        console.log('response.countPoints > 50 000')
+        return processFile(originalfile, round((dist1 * 0.3) / 5, 2), 'To many records, more then 50 000')
     }
 
     fileHelper.writeFile2(__dirname + '/static/json/points.json', JSON.stringify(pointsForJson));

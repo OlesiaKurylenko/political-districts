@@ -9,6 +9,23 @@
       #radius {
         width: 10%;
       }
+      .generated{
+        border: none;
+          background-color: #757474;
+          color: white;
+          padding: 14px 28px;
+          font-size: 16px;
+          cursor: pointer;
+          text-align: center;
+        }
+        
+        .generated:hover {
+          background-color: #ddd;
+          color: black;
+        }
+        label{
+          padding-right: 15px;
+        }
       /* Optional: Makes the sample page fill the window. */
       html,
       body {
