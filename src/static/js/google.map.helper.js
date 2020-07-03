@@ -139,6 +139,7 @@ function setStatistic(data) {
     document.getElementById("dist2").value = data.dist2;
     document.getElementById("urlToCsv").href = data.urlCsv;
     document.getElementById("radius").value = data.radius;
+    checkDefault();
 }
 
 function setZoom(dist1) {
@@ -169,4 +170,8 @@ function setZoom(dist1) {
     }
     zoom = 10;
 
+}
+
+function checkDefault() {
+    document.getElementById("radius").disabled = document.getElementById("isRadiusDefault").checked;
 }
