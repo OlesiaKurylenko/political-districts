@@ -87,6 +87,7 @@ function initMap() {
     bermudaTriangle.setMap(map);
 
     for (let city in circleCoords) {
+        console.log(city, circleCoords[city].center, (circleCoords[city].radius) * 1000)
         let cityCircle = new google.maps.Circle({
             strokeColor: '#FF0000',
             strokeOpacity: 0.8,
@@ -105,9 +106,10 @@ async function generatedPoints() {
     let radius = document.getElementById("radius").value;
     let select = document.getElementById("selectFile");
     let checked = document.getElementById("isRadiusDefault").checked;
+    let isСrossing = document.getElementById("isСrossing").checked;
     let fileName = select.options[select.selectedIndex].text;
     document.getElementById("generated").disabled = true;
-    let data = await postData('/points', { radius: radius, fileName: fileName, isRadiusDefault: checked });
+    let data = await postData('/points', { radius: radius, fileName: fileName, isRadiusDefault: checked, isСrossing: isСrossing });
     console.log(data)
     if (data.error) {
         document.getElementById("information").innerHTML = data.error; return;
@@ -139,6 +141,8 @@ function setStatistic(data) {
     document.getElementById("dist2").value = data.dist2;
     document.getElementById("urlToCsv").href = data.urlCsv;
     document.getElementById("radius").value = data.radius;
+    document.getElementById("isСrossing").checked = data.isRadiusDefault;
+
     checkDefault();
 }
 

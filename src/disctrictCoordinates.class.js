@@ -1,9 +1,24 @@
 const fs = require('fs');
 const EARTH_RADIUS = 6372795;
 
-class GeoHelper {
+class DisctrictCoordinates {
+    constructor() {
+        this.origDistrictArray = [];
+        this.poligon = { longitude: [], latitude: [] };
+        this.minMaxCoordinates = {
+            longitude: {
+                min: null,
+                max: null
+            },
+            latitude: {
+                min: null,
+                max: null
+            },
+        }
 
-    static calculateTheDistance(ln, lt, ln1, lt1) {
+    }
+
+    calculateTheDistance(ln, lt, ln1, lt1) {
         // перевести координаты в радианы
         let lat1 = ln * Math.PI / 180;
         let lat2 = ln1 * Math.PI / 180;
@@ -30,7 +45,7 @@ class GeoHelper {
         return $dist / 1000;
     }
 
-    static parseGeoJson(data) {
+    parseGeoJson(data) {
         let district = null;
         try {
             district = JSON.parse(data);
@@ -39,72 +54,68 @@ class GeoHelper {
             console.log('######eee', err.stack)
         }
         if (Array.isArray(district.geometry.coordinates[0][0][0]))
-            return district.geometry.coordinates[0][0];
-        return district.geometry.coordinates[0];
+            return this.origDistrictArray = district.geometry.coordinates[0][0];
+        return this.origDistrictArray = district.geometry.coordinates[0];
     }
 
-    static preparationData(mass) {
-        let result = {
-            longitude: {
-                min: {
-                    value: null, index: null
-                },
-                max: {
-                    value: null, index: null
-                }
-            },
-            latitude: {
-                min: {
-                    value: null, index: null
-                },
-                max: {
-                    value: null, index: null
-                }
-            },
-            preperedMas: { longitude: [], latitude: [] }
-        }
-        return mass.reduce((acc, value, index) => {
+    prepareCoordinates() {
+        if (this.origDistrictArray.length <= 0) return null;
+
+        this.origDistrictArray.forEach((value, index) => {
             let ln = value[0];
             let lt = value[1];
 
-            acc.preperedMas.longitude.push(ln);
-            acc.preperedMas.latitude.push(lt);
+            this.poligon.longitude.push(ln);
+            this.poligon.latitude.push(lt);
 
             if (index === 0) {
-                acc.longitude.min.value = ln;
-                acc.longitude.min.index = index;
+                this.minMaxCoordinates.longitude.min = ln;
 
-                acc.longitude.max.value = ln;
-                acc.longitude.max.index = index;
+                this.minMaxCoordinates.longitude.max = ln;
 
-                acc.latitude.min.value = lt;
-                acc.latitude.min.index = index;
+                this.minMaxCoordinates.latitude.min = lt;
 
-                acc.latitude.max.value = lt;
-                acc.latitude.max.index = index;
+                this.minMaxCoordinates.latitude.max = lt;
             }
 
-            if (acc.longitude.min.value > ln) {
-                acc.longitude.min.value = ln;
-                acc.longitude.min.index = index;
+            if (this.minMaxCoordinates.longitude.min > ln) {
+                this.minMaxCoordinates.longitude.min = ln;
             }
-            if (acc.longitude.max.value <= ln) {
-                acc.longitude.max.value = ln;
-                acc.longitude.max.index = index;
+            if (this.minMaxCoordinates.longitude.max <= ln) {
+                this.minMaxCoordinates.longitude.max = ln;
             }
-            if (acc.latitude.min.value > lt) {
-                acc.latitude.min.value = lt;
-                acc.latitude.min.index = index;
+            if (this.minMaxCoordinates.latitude.min > lt) {
+                this.minMaxCoordinates.latitude.min = lt;
             }
-            if (acc.latitude.max.value <= lt) {
-                acc.latitude.max.value = lt;
-                acc.latitude.max.index = index;
+            if (this.minMaxCoordinates.latitude.max <= lt) {
+                this.minMaxCoordinates.latitude.max = lt;
             }
-            return acc;
-        }, result);
+        });
+        return this.minMaxCoordinates;
     }
 
-    static getMinMax(mass) {
+    containsLocation(longitude, latitude) {
+        let i, j = this.poligon.longitude.length - 1;
+        let oddNodes = false;
+        let polyX = this.poligon.longitude;
+        let polyY = this.poligon.latitude;
+
+        for (i = 0; i < this.poligon.longitude.length; i++) {
+            if ((polyY[i] < latitude && polyY[j] >= latitude || polyY[j] < latitude && polyY[i] >= latitude) && (polyX[i] <= longitude || polyX[j] <= longitude)) {
+                oddNodes ^= (polyX[i] + (latitude - polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j] - polyX[i]) < longitude);
+            }
+            j = i;
+        }
+
+        return oddNodes;
+    }
+
+}
+
+module.exports = DisctrictCoordinates;
+
+/*
+    getMinMax(mass) {
         return mass.reduce((acc, value, index) => {
             let x = value[0];
             let y = value[1];
@@ -147,27 +158,4 @@ class GeoHelper {
             }
             return acc;
         }, { x: { xmin: null, xmin_index: null, xmax: null, xmax_index: null }, y: { ymin: null, ymin_index: null, ymax: null, ymax_index: null }, arr: { x: [], y: [] } });
-    }
-
-    static containsLocation(x, y, cornersX, cornersY) {
-
-        let i, j = cornersX.length - 1;
-        let oddNodes = false;
-
-        let polyX = cornersX;
-        let polyY = cornersY;
-
-        for (i = 0; i < cornersX.length; i++) {
-            if ((polyY[i] < y && polyY[j] >= y || polyY[j] < y && polyY[i] >= y) && (polyX[i] <= x || polyX[j] <= x)) {
-                oddNodes ^= (polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j] - polyX[i]) < x);
-            }
-            j = i;
-        }
-
-        return oddNodes;
-    }
-
-
-}
-
-module.exports = GeoHelper;
+    }*/

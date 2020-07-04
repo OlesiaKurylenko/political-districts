@@ -18,9 +18,9 @@ router.get('/', function (req, res) {
     //__dirname : It will resolve to your project folder.
 });
 app.post('/points', function (req, res) {
-    let { fileName, radius, isRadiusDefault } = (req.body);
+    let { fileName, radius, isRadiusDefault, isСrossing } = (req.body);
 
-    res.json(processChain.processFile(fileName, !isRadiusDefault ? radius : null));
+    res.json(processChain.processFile(fileName, !isRadiusDefault ? radius : null, isСrossing));
 });
 router.get('/init', function (req, res) {
     res.json(processChain.processFile());
